@@ -12,6 +12,7 @@ class Board:
         self.turn = "X"
         self.gameFinished = False
         self.winner = ""
+        self.moves_count = 0
         self.state = [[0, 0, 0],
                       [0, 0, 0],
                       [0, 0, 0]]
@@ -43,20 +44,21 @@ class Board:
             # Line check
             if self.state[i][0] == self.state[i][1] == self.state[i][2] != 0:
                 return True
-
         # Diagonals check
         if self.state[0][0] == self.state[1][1] == self.state[2][2] != 0:
             return True
         if self.state[0][2] == self.state[1][1] == self.state[2][0] != 0:
             return True
 
-        """if 0 not in self.state[i]:
+        if self.moves_count == 9:
             self.gameFinished = True
-            print("Draw")"""
+            self.winner = "Nobody"
+            print('tie')
 
         return False
 
     def drawPieces(self, screen, x, y):
+        self.moves_count += 1
         # Operation to find the row and column
         col = math.floor((self.cols * x) / self.width)
         row = math.floor((self.rows * y) / self.height)
@@ -88,6 +90,7 @@ class Board:
     def rePlay(self, screen):
         screen.fill((0, 0, 0))
         self.turn = "X"
+        self.moves_count = 0
         self.gameFinished = False
         self.winner = ""
         self.state = [[0, 0, 0],

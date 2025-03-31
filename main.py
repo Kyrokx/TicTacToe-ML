@@ -35,7 +35,9 @@ while running:
 
     if board.gameFinished:
         won_txt = font.render(f"{board.winner} WIN !", True, "white")
+        won_txt2 = font.render(f"Press SPACE to restart!", True, "white")
         screen.blit(won_txt, ((WIN_WIDTH*0.7), 600))
+        screen.blit(won_txt2, ((WIN_WIDTH*0.7), 650))
 
     pygame.display.flip()
 
