@@ -84,3 +84,15 @@ class Board:
                         print(f"{self.turn} win")
                     else:
                         self.turn = "X"
+
+    def rePlay(self, screen):
+        screen.fill((0, 0, 0))
+        self.turn = "X"
+        self.gameFinished = False
+        self.winner = ""
+        self.state = [[0, 0, 0],
+                      [0, 0, 0],
+                      [0, 0, 0]]
+        self.drawBoard(screen)
+        pygame.display.update()
+        pygame.display.flip()
