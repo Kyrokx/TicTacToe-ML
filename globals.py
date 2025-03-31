@@ -1,5 +1,4 @@
 import pygame
-import os
 
 pygame.font.init()
 
@@ -11,4 +10,5 @@ COLS = 3
 
 x_img = pygame.transform.scale(pygame.image.load('assets/x.png'), ((WIDTH / ROWS), (HEIGHT / COLS)))
 o_img = pygame.transform.scale(pygame.image.load('assets/o.png'), ((WIDTH / ROWS), (HEIGHT / COLS)))
+
 font = pygame.font.Font(None, 48)
