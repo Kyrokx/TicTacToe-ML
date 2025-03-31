@@ -39,6 +39,7 @@ while running:
         screen.blit(won_txt, ((WIN_WIDTH*0.7), 600))
         screen.blit(won_txt2, ((WIN_WIDTH*0.7), 650))
 
+
     pygame.display.flip()
 
     clock.tick(60)
