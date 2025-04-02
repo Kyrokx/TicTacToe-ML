@@ -39,6 +39,11 @@ while running:
         screen.blit(won_txt, ((WIN_WIDTH * 0.7), 600))
         screen.blit(won_txt2, ((WIN_WIDTH * 0.7), 650))
 
+    if board.player == 'AI' and board.player_id == 1:
+        board.ai_play()
+        print(board.verify_check(1))
+        print(board.grid)
+
     pygame.display.flip()
 
     clock.tick(60)
