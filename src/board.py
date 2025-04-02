@@ -4,99 +4,102 @@ from globals import *
 
 
 class Board:
-    def __init__(self, screen, width, height, rows, cols):
-        self.width = width
-        self.height = height
-        self.rows = rows
-        self.cols = cols
-        self.turn = "X"
+    def __init__(self, screen):
+        self.screen = screen
+        self.player = "Human"
         self.gameFinished = False
         self.winner = ""
         self.moves_count = 0
-        self.state = [[0, 0, 0],
-                      [0, 0, 0],
-                      [0, 0, 0]]
+        self.grid = [[0, 0, 0],
+                     [0, 0, 0],
+                     [0, 0, 0]]
 
-        self.drawBoard(screen)
+        self.drawBoard()
 
-    def drawBoard(self, screen):
+    def drawBoard(self):
         # Vertical lines
-        pygame.draw.line(screen, "white", pygame.Vector2((self.width / 3), 0),
-                         pygame.Vector2((self.width / 3), self.height), width=1)
-        pygame.draw.line(screen, "white", pygame.Vector2((2 * self.width / 3), 0),
-                         pygame.Vector2((2 * self.width / 3), self.height), width=1)
-        pygame.draw.line(screen, "white", pygame.Vector2(self.width, 0),
-                         pygame.Vector2(self.width, self.height), width=1)
+        pygame.draw.line(self.screen, "white", pygame.Vector2((BOARD_WIDTH / 3), 0),
+                         pygame.Vector2((BOARD_WIDTH / 3), BOARD_HEIGHT), width=1)
+        pygame.draw.line(self.screen, "white", pygame.Vector2((2 * BOARD_WIDTH / 3), 0),
+                         pygame.Vector2((2 * BOARD_WIDTH / 3), BOARD_HEIGHT), width=1)
+        pygame.draw.line(self.screen, "white", pygame.Vector2(BOARD_WIDTH, 0),
+                         pygame.Vector2(BOARD_WIDTH, BOARD_HEIGHT), width=1)
 
         # Horizontal lines
-        pygame.draw.line(screen, "white", pygame.Vector2(0, (self.height / 3)),
-                         pygame.Vector2(self.width, (self.height / 3)), width=1)
-        pygame.draw.line(screen, "white", pygame.Vector2(0, (2 * self.height / 3)),
-                         pygame.Vector2(self.width, (2 * self.height / 3)), width=1)
+        pygame.draw.line(self.screen, "white", pygame.Vector2(0, (BOARD_HEIGHT / 3)),
+                         pygame.Vector2(BOARD_WIDTH, (BOARD_HEIGHT / 3)), width=1)
+        pygame.draw.line(self.screen, "white", pygame.Vector2(0, (2 * BOARD_HEIGHT / 3)),
+                         pygame.Vector2(BOARD_WIDTH, (2 * BOARD_HEIGHT / 3)), width=1)
 
     def verify_check(self):
         for i in range(3):
 
             # Column check
-            if self.state[0][i] == self.state[1][i] == self.state[2][i] != 0:
+            if self.grid[0][i] == self.grid[1][i] == self.grid[2][i] != 0:
                 return True
 
             # Line check
-            if self.state[i][0] == self.state[i][1] == self.state[i][2] != 0:
+            if self.grid[i][0] == self.grid[i][1] == self.grid[i][2] != 0:
                 return True
         # Diagonals check
-        if self.state[0][0] == self.state[1][1] == self.state[2][2] != 0:
+        if self.grid[0][0] == self.grid[1][1] == self.grid[2][2] != 0:
             return True
-        if self.state[0][2] == self.state[1][1] == self.state[2][0] != 0:
+        if self.grid[0][2] == self.grid[1][1] == self.grid[2][0] != 0:
             return True
 
-        if self.moves_count == 9:
+        if self.moves_count == 10:
             self.gameFinished = True
             self.winner = "Nobody"
             print('tie')
 
         return False
 
-    def drawPieces(self, screen, x, y):
-        self.moves_count += 1
-        # Operation to find the row and column
-        col = math.floor((self.cols * x) / self.width)
-        row = math.floor((self.rows * y) / self.height)
+    def empty_cells(self):
+        cells = []
+        for r in range(3):
+            for c in range(3):
+                if self.grid[r][c] == 0:
+                    cells.append([r, c])
 
-        # Verify if the cursor click is into je board
-        if x < self.width and y < self.height:
-            if self.turn == "X":
-                if self.state[row][col] == 0:
-                    self.state[row][col] = -1
-                    screen.blit(x_img, (col * (self.width / 3), row * (self.height / 3)))
+        return cells
+
+    def human_play(self, x, y):
+        if self.player == "Human":
+            # Operation to find the row and column
+            col = math.floor((COLS * x) / BOARD_WIDTH)
+            row = math.floor((ROWS * y) / BOARD_HEIGHT)
+
+            # Verify if the cursor click is into  the board
+            if x < BOARD_WIDTH and y < BOARD_HEIGHT:
+                if [row, col] in self.empty_cells():
+                    self.grid[row][col] = -1
+                    self.drawPieces(col, row)
+
                     if self.verify_check():
                         self.gameFinished = True
-                        self.winner = str(self.turn)
-                        print(f"{self.turn} win")
+                        self.winner = str(self.player)
+                        print(f"{self.player} win")
                     else:
-                        self.turn = "O"
+                        self.player = "AI"
 
-            elif self.turn == "O":
-                if self.state[row][col] == 0:
-                    self.state[row][col] = 1
-                    screen.blit(o_img, (col * (self.width / 3), row * (self.height / 3)))
-                    if self.verify_check():
-                        self.gameFinished = True
-                        self.winner = str(self.turn)
-                        print(f"{self.turn} win")
-                    else:
-                        self.turn = "X"
+                self.moves_count += 1
 
-    def rePlay(self, screen):
-        screen.fill((0, 0, 0))
-        self.turn = "X"
+    def drawPieces(self, col, row):
+        if self.player == "Human":
+            self.screen.blit(x_img, (col * (BOARD_WIDTH / 3), row * (BOARD_HEIGHT / 3)))
+
+        elif self.player == "AI":
+            self.screen.blit(o_img, (col * (BOARD_WIDTH / 3), row * (BOARD_HEIGHT / 3)))
+
+    def rePlay(self):
+        self.screen.fill((0, 0, 0))
+        self.player = "Human"
         self.moves_count = 0
         self.gameFinished = False
         self.winner = ""
-        self.state = [[0, 0, 0],
-                      [0, 0, 0],
-                      [0, 0, 0]]
-        self.drawBoard(screen)
+        self.grid = [[0, 0, 0],
+                     [0, 0, 0],
+                     [0, 0, 0]]
+        self.drawBoard()
         pygame.display.update()
         pygame.display.flip()
-
