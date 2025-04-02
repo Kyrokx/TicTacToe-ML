@@ -41,9 +41,8 @@ while running:
 
     if board.player == 'AI' and board.player_id == 1:
         board.ai_play()
-        print(board.verify_check(1))
-        print(board.grid)
-
+        """print(board.verify_check(1))
+        print(board.grid)"""
     pygame.display.flip()
 
     clock.tick(60)
