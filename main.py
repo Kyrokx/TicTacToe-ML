@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 from globals import *
@@ -12,7 +14,9 @@ running = True
 score_board_surface = screen.subsurface(
     pygame.Rect(BOARD_WIDTH, 0, (WIN_WIDTH - BOARD_WIDTH), WIN_HEIGHT))
 
-board = Board(screen, BOARD_WIDTH, BOARD_HEIGHT, ROWS, COLS)
+# Choose random starting player
+starting_player = random.choice([["Human", -1], ["AI", 1]])
+board = Board(screen,starting_player)
 
 while running:
     for event in pygame.event.get():
@@ -20,25 +24,32 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not board.gameFinished:
-                board.drawPieces(screen, pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                if board.player == "Human":
+                    board.human_play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                    print(board.grid)
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 if board.gameFinished:
-                    board.rePlay(screen)
+                    board.rePlay()
 
     score_board_surface.fill((5, 5, 5))
     welcome_txt = font.render("Welcome on TicTacToe-ML", True, "white")
-    turn_txt = font.render(f"It's the turn of : {board.turn}", True, "blue")
+    turn_txt = font.render(f"It's the turn of : {board.player}", True, "blue")
 
-    screen.blit(welcome_txt, ((WIN_WIDTH*0.65), 100))
-    screen.blit(turn_txt, ((WIN_WIDTH*0.65), 200))
+    screen.blit(welcome_txt, ((WIN_WIDTH * 0.65), 100))
+    screen.blit(turn_txt, ((WIN_WIDTH * 0.65), 200))
 
     if board.gameFinished:
         won_txt = font.render(f"{board.winner} WIN !", True, "white")
         won_txt2 = font.render(f"Press SPACE to restart!", True, "white")
-        screen.blit(won_txt, ((WIN_WIDTH*0.7), 600))
-        screen.blit(won_txt2, ((WIN_WIDTH*0.7), 650))
+        screen.blit(won_txt, ((WIN_WIDTH * 0.7), 600))
+        screen.blit(won_txt2, ((WIN_WIDTH * 0.7), 650))
 
+    if not board.gameFinished:
+        if board.player == 'AI' and board.player_id == 1:
+            board.ai_play()
+            print(board.grid)
 
     pygame.display.flip()
 
