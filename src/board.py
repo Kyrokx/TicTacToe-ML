@@ -1,16 +1,16 @@
 import math
-from math import *
 import random
 
 import numpy as np
+
 from globals import *
 
 
 class Board:
-    def __init__(self, screen):
+    def __init__(self, screen, starting_player):
         self.screen = screen
-        self.player = "Human"
-        self.player_id = -1
+        self.player = starting_player[0]
+        self.player_id = starting_player[1]
         self.gameFinished = False
         self.winner = ""
         self.moves_count = 0
@@ -35,47 +35,19 @@ class Board:
         pygame.draw.line(self.screen, "white", pygame.Vector2(0, (2 * BOARD_HEIGHT / 3)),
                          pygame.Vector2(BOARD_WIDTH, (2 * BOARD_HEIGHT / 3)), width=1)
 
-    def check_game(self, board, player):
-        for row in board:
-            if row[0] == row[1] == row[2] == player:
-                print(player, "gagne")
-                return True
-
-        for col in range(len(board)):
-            check = []
-            for row in board:
-                check.append(row[col])
-            if check.count(player) == len(check) and check[0] != 0:
-                print("player", player, "gagne")
-                return True
-
-        diags = []
-        for indx in range(len(board)):
-            diags.append(board[indx][indx])
-        if diags.count(player) == len(diags) and diags[0] != 0:
-            print(player, "gagne")
-            return True
-
-        diags_2 = []
-        for indx, rev_indx in enumerate(reversed(range(len(board)))):
-            diags_2.append(board[indx][rev_indx])
-        if diags_2.count(player) == len(diags_2) and diags_2[0] != 0:
-            print(player, "gagne")
-            return True
-
-    def verify_check(self, player):
+    def verify_check(self, grid, player_id):
         for i in range(3):
             # Column check
-            if self.grid[0][i] == self.grid[1][i] == self.grid[2][i] == player:
+            if grid[0][i] == grid[1][i] == grid[2][i] == player_id:
                 return True
 
             # Line check
-            if self.grid[i][0] == self.grid[i][1] == self.grid[i][2] == player:
+            if grid[i][0] == grid[i][1] == grid[i][2] == player_id:
                 return True
         # Diagonals check
-        if self.grid[0][0] == self.grid[1][1] == self.grid[2][2] == player:
+        if grid[0][0] == grid[1][1] == grid[2][2] == player_id:
             return True
-        if self.grid[0][2] == self.grid[1][1] == self.grid[2][0] == player:
+        if grid[0][2] == grid[1][1] == grid[2][0] == player_id:
             return True
 
         """if self.moves_count == 10:
@@ -83,7 +55,7 @@ class Board:
             self.winner = 'Nobody'
             print('tie')
 
-        return False """
+        return False"""
 
     def empty_cells(self):
         cells = []
@@ -91,62 +63,28 @@ class Board:
             for c in range(3):
                 if self.grid[r][c] == 0:
                     cells.append([r, c])
-
-        print(cells)
         return cells
 
-    def human_play(self, x, y):  # -1
-        if self.player == "Human":
-            # Operation to find the row and column
-            col = math.floor((COLS * x) / BOARD_WIDTH)
-            row = math.floor((ROWS * y) / BOARD_HEIGHT)
+    def human_play(self, x, y):
+        # Operation to find the row and column
+        col = math.floor((COLS * x) / BOARD_WIDTH)
+        row = math.floor((ROWS * y) / BOARD_HEIGHT)
 
-            # Verify if the cursor click is into  the board
-            if x < BOARD_WIDTH and y < BOARD_HEIGHT:
-                if [row, col] in self.empty_cells():
-                    self.grid[row][col] = -1
-                    self.drawPieces(col, row)
+        # Verify if the cursor click is into the board
+        if x < BOARD_WIDTH and y < BOARD_HEIGHT:
+            if [row, col] in self.empty_cells():
+                self.grid[row][col] = -1
+                self.drawPieces(col, row)
+                print(self.is_terminal_node(self.grid))
+                if self.verify_check(self.grid, -1):
+                    self.gameFinished = True
+                    self.winner = str(self.player)
+                    print(f"{self.player} win")
+                else:
+                    self.player = "AI"
+                    self.player_id = 1
 
-                    if self.check_game(self.grid, -1):
-                        self.gameFinished = True
-                        self.winner = str(self.player)
-                        print(f"{self.player} win")
-                    else:
-                        self.player = "AI"
-                        self.player_id = 1
-
-                self.moves_count += 1
-
-    def ai_play(self):
-        depth = 3
-        if depth == 0 or self.is_terminal_node():
-            return
-
-        if self.player == "AI" and self.player_id == 1:
-            """best_move = self.minmax(depth, 0, 0, self.player_id)
-            # print(best_move)
-            r, c = best_move[0], best_move[1]
-
-            self.drawPieces(c, r)"""
-
-            best_move = self.get_best_move()
-            if best_move is None:
-                best_move = random.choice(self.empty_cells())
-                print(f'+++++++++{best_move}+++++++++++++')
-
-            print(f'*************{best_move}***************')
-            r, c = best_move[0], best_move[1]
-            self.drawPieces(c, r)
-            self.grid[r][c] = 1
-            if self.check_game(self.grid, 1):
-                self.gameFinished = True
-                self.winner = str(self.player)
-                print(f"{self.player} win")
-            else:
-                self.player = "Human"
-                self.player_id = -1
-
-        self.moves_count += 1
+            self.moves_count += 1
 
     def drawPieces(self, col, row):
         if self.player == "Human":
@@ -157,7 +95,9 @@ class Board:
 
     def rePlay(self):
         self.screen.fill((0, 0, 0))
-        self.player = "Human"
+        starting_player = random.choice([["Human", -1], ["AI", 1]])
+        self.player = starting_player[0]
+        self.player_id = starting_player[1]
         self.moves_count = 0
         self.gameFinished = False
         self.winner = ""
@@ -165,71 +105,78 @@ class Board:
                      [0, 0, 0],
                      [0, 0, 0]]
         self.drawBoard()
-        pygame.display.update()
-        pygame.display.flip()
 
-    def is_terminal_node(self):
-        return self.check_game(self.grid, (-1)) or self.check_game(self.grid, 1)
-
-    def evaluate(self):
-        if self.check_game(self.grid, (-1)):
-            score = -100
-        elif self.check_game(self.grid, 1):
-            score = 100
+    def is_terminal_node(self, grid):
+        if self.verify_check(grid, -1) or self.verify_check(grid, 1):
+            return True
         else:
-            score = 0
+            return False
 
-        return score
+    def evaluate(self, grid, depth):
+        if self.verify_check(grid, 1):
+            return 10 - depth
+        elif self.verify_check(grid, -1):
+            return -10 + depth
+        return 0
 
-    def minmax(self, depth, isMax):
-        """if player_number == 1:
-            best = [1, 1, -np.inf]
-        else:
-            best = [1, 1, +np.inf]"""
+    def minmax(self, grid, depth, player_id):
+        score = self.evaluate(grid, depth)
 
-        self.evaluate()
+        if abs(score) == 10 or depth == 0:
+            print(f"Returning score {score} at depth {depth}")
+            return score
 
-        if isMax:
+        if player_id == -1:  # It's human turn: We want to minimize
+            best_score = np.inf
+            for [r, c] in self.empty_cells():
+                grid[r][c] = -1
+                best_score = min(best_score, self.minmax(grid, depth - 1, -player_id))
+                grid[r][c] = 0
+            print(f"Best score for human: {best_score}")
+            return best_score
+
+        else:  # It's AI turn: We want to maximize
             best_score = -np.inf
+            for [r, c] in self.empty_cells():
+                grid[r][c] = 1
+                best_score = max(best_score, self.minmax(grid, depth - 1, -player_id))
+                grid[r][c] = 0
+            print(f"Best score for AI: {best_score}")
+            return best_score
+
+    def ai_play(self):
+        depth = len(self.empty_cells())
+
+        if depth == 0 or self.is_terminal_node(self.grid):
+            return
+
+        if depth == 9:
+            r, c = random.choice(self.empty_cells())
+
+        else:
+            best_score = -np.inf
+            best_move = None
 
             for [r, c] in self.empty_cells():
                 self.grid[r][c] = 1
-                score = self.minmax(depth + 1, False)
-                self.grid[r][c] = 0
-                # Update the best score
-                best_score = max(score, best_score)
-            return best_score
+                score = self.minmax(self.grid, depth - 1, -self.player_id)
+                self.grid[r][c] = 0  #
+                print(f"Checking move ({r},{c}) with score {score}")
+                if score > best_score:
+                    best_score = score
+                    best_move = (r, c)
+            print(f"AI plays at {best_move} with score {best_score}")
+            if best_move:
+                r, c = best_move
 
+        self.grid[r][c] = 1
+        self.drawPieces(c, r)
+        self.moves_count += 1
+
+        if self.verify_check(self.grid, 1):
+            self.gameFinished = True
+            self.winner = "AI"
+            print("AI wins")
         else:
-            # if it is the minimizing player's turn (human), we want to minimize the score
-            best_score = np.inf
-            for [r, c] in self.empty_cells():
-                # Make a calculating move
-                self.grid[r][c] = -1
-                # Recursively call minimax with the next depth and the maximizing player
-                score = self.minmax(depth + 1, True)
-                # Reset the move
-                self.grid[r][c] = 0
-                # Update the best score
-                best_score = min(score, best_score)
-            return best_score
-
-    def get_best_move(self):
-        """Find the best move for AI using minimax"""
-        best_score = -np.inf
-        best_move = None  # [1, 1]
-
-        for [r, c] in self.empty_cells():
-            # Make a calculating move
-            self.grid[r][c] = 1
-            # Recursively call minimax with the next depth and the minimizing player
-            score = self.minmax(1, True)
-            # Reset the move
-            self.grid[r][c] = 0
-
-            # Update the best score
-            if score > best_score:
-                best_score = score
-                best_move = [r, c]
-
-        return best_move
+            self.player = "Human"
+            self.player_id = -1
