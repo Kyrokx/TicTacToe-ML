@@ -14,4 +14,4 @@ COLS = 3
 x_img = pygame.transform.scale(pygame.image.load('assets/x.png'), ((BOARD_WIDTH / ROWS), (BOARD_HEIGHT / COLS)))
 o_img = pygame.transform.scale(pygame.image.load('assets/o.png'), ((BOARD_WIDTH / ROWS), (BOARD_HEIGHT / COLS)))
 
-font = pygame.font.Font(None, 48)
+font = pygame.font.Font("assets/font/Quicksand-VariableFont_wght.ttf", 36)

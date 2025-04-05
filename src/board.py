@@ -35,7 +35,8 @@ class Board:
         pygame.draw.line(self.screen, "white", pygame.Vector2(0, (2 * BOARD_HEIGHT / 3)),
                          pygame.Vector2(BOARD_WIDTH, (2 * BOARD_HEIGHT / 3)), width=1)
 
-    def verify_check(self, grid, player_id):
+    @staticmethod
+    def verify_check(grid, player_id):
         for i in range(3):
             # Column check
             if grid[0][i] == grid[1][i] == grid[2][i] == player_id:
@@ -145,13 +146,14 @@ class Board:
             return best_score
 
     def ai_play(self):
+        r, c = 0, 0
         depth = len(self.empty_cells())
 
         if depth == 0 or self.is_terminal_node(self.grid):
             return
 
         if depth == 9:
-            r, c = random.choice(self.empty_cells())
+            [r, c] = random.choice(self.empty_cells())
 
         else:
             best_score = -np.inf
@@ -167,7 +169,7 @@ class Board:
                     best_move = (r, c)
             print(f"AI plays at {best_move} with score {best_score}")
             if best_move:
-                r, c = best_move
+                [r, c] = best_move
 
         self.grid[r][c] = 1
         self.drawPieces(c, r)
