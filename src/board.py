@@ -178,7 +178,7 @@ class Board:
         if self.verify_check(self.grid, 1):
             self.gameFinished = True
             self.winner = "AI"
-            print("AI wins")
+            # print("AI wins")
         else:
             self.player = "Human"
             self.player_id = -1

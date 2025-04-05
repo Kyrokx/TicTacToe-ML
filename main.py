@@ -24,7 +24,7 @@ while running:
             if not board.gameFinished:
                 if board.player == "Human":
                     board.human_play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-                    print(board.grid)
+                    # print(board.grid)
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
@@ -57,7 +57,7 @@ while running:
     if not board.gameFinished:
         if board.player == 'AI' and board.player_id == 1:
             board.ai_play()
-            print(board.grid)
+            # print(board.grid)
 
     pygame.display.flip()
 
