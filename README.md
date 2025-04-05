@@ -28,10 +28,8 @@ Bienvenue dans ce projet de **Tic-Tac-Toe** intégrant une intelligence artifici
 L'IA utilise **Minimax** pour évaluer les coups et choisir le meilleur. Elle analyse les scénarios possibles et joue stratégiquement.
 
 ## 📌 Améliorations possibles
-- ✅ Ajout de niveaux de difficulté
 - ✅ Interface améliorée
 - ✅ Optimisation de l'algorithme
-- ✅ Gestion des matchs nuls
 - ✅ Optimiser le code
 
 ---
