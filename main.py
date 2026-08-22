@@ -1,7 +1,9 @@
 import random
-
+import pygame
 from globals import *
 from src.board import Board
+from src.ai import AI
+from src.human import Human
 
 pygame.init()
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -12,9 +14,10 @@ running = True
 score_board_surface = screen.subsurface(
     pygame.Rect(BOARD_WIDTH, 0, (WIN_WIDTH - BOARD_WIDTH), WIN_HEIGHT))
 
-# Choose random starting player
 starting_player = random.choice([["Human", -1], ["AI", 1]])
 board = Board(screen, starting_player)
+ai = AI(board=board)
+human = Human(board=board)
 
 while running:
     for event in pygame.event.get():
@@ -22,45 +25,46 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not board.gameFinished:
-                if board.player == "Human":
-                    board.human_play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-                    # print(board.grid)
-
+                if board.player == "Human" and not ai.processing:
+                    human.play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 if board.gameFinished:
                     board.rePlay()
 
-    # If there is a draw replay automatically
-    if board.moves_count == 9:
+    if board.moves_count == 9 and not board.gameFinished:
         board.gameFinished = True
+        board.winner = ""
 
     score_board_surface.fill((5, 5, 5))
     welcome_txt = font.render("Welcome on TicTacToe-ML", True, "white")
     turn_txt = font.render(f"It's the turn of : {board.player}", True, "blue")
-
+    
     screen.blit(welcome_txt, ((WIN_WIDTH * 0.65), 100))
     screen.blit(turn_txt, ((WIN_WIDTH * 0.65), 200))
+
+    if ai.processing:
+        processing_txt = font.render(f"AI processing...", True, "blue")
+        screen.blit(processing_txt, ((WIN_WIDTH * 0.65), 500))
 
     if board.gameFinished:
         if board.winner == "":
             won_txt = font.render(f"Nobody wins", True, "white")
-            won_txt2 = font.render(f"Press SPACE to restart!", True, "white")
-            screen.blit(won_txt, ((WIN_WIDTH * 0.7), 600))
-            screen.blit(won_txt2, ((WIN_WIDTH * 0.7), 650))
         else:
             won_txt = font.render(f"{board.winner} win !", True, "white")
-            won_txt2 = font.render(f"Press SPACE to restart!", True, "white")
-            screen.blit(won_txt, ((WIN_WIDTH * 0.7), 600))
-            screen.blit(won_txt2, ((WIN_WIDTH * 0.7), 650))
+            
+        won_txt2 = font.render(f"Press SPACE to restart!", True, "white")
+        screen.blit(won_txt, ((WIN_WIDTH * 0.7), 600))
+        screen.blit(won_txt2, ((WIN_WIDTH * 0.7), 650))
 
     if not board.gameFinished:
         if board.player == 'AI' and board.player_id == 1:
-            board.ai_play()
-            # print(board.grid)
+            if not ai.processing and not ai.move_ready:
+                ai.start_thinking()
+            elif ai.move_ready:
+                ai.apply_move()
 
     pygame.display.flip()
-
     clock.tick(60)
 
 pygame.quit()
