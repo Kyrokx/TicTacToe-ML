@@ -2,6 +2,9 @@ import random
 
 from globals import *
 from src.board import Board
+from src.ai import AI
+from src.human import Human
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -15,6 +18,9 @@ score_board_surface = screen.subsurface(
 # Choose random starting player
 starting_player = random.choice([["Human", -1], ["AI", 1]])
 board = Board(screen, starting_player)
+ai = AI(board=board)
+human = Human(board=board)
+
 
 while running:
     for event in pygame.event.get():
@@ -23,7 +29,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not board.gameFinished:
                 if board.player == "Human":
-                    board.human_play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                    human.play(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                     # print(board.grid)
 
         if event.type == pygame.KEYDOWN:
@@ -38,9 +44,11 @@ while running:
     score_board_surface.fill((5, 5, 5))
     welcome_txt = font.render("Welcome on TicTacToe-ML", True, "white")
     turn_txt = font.render(f"It's the turn of : {board.player}", True, "blue")
+    processing_txt = font.render(f"AI processing...", True, "blue")
 
     screen.blit(welcome_txt, ((WIN_WIDTH * 0.65), 100))
     screen.blit(turn_txt, ((WIN_WIDTH * 0.65), 200))
+
 
     if board.gameFinished:
         if board.winner == "":
@@ -56,8 +64,10 @@ while running:
 
     if not board.gameFinished:
         if board.player == 'AI' and board.player_id == 1:
-            board.ai_play()
-            # print(board.grid)
+    
+            screen.blit(processing_txt, ((WIN_WIDTH * 0.65), 500))
+            pygame.display.update()
+            ai.play()
 
     pygame.display.flip()
 
